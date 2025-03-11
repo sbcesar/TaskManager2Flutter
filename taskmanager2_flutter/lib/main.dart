@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
-
-import 'database/taskDatabase.dart';
 import 'screens/loginScreen.dart';
+import 'screens/registerScreen.dart';
 import 'screens/taskScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final database = await $FloorTaskdatabase.databaseBuilder('app_database.db').build();
-  runApp(MyApp(database));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final Taskdatabase database;
-
-  const MyApp(this.database, {super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +25,20 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/login',
       routes: {
-        '/login': (context) => LoginScreen(database: database),
-        '/tasks': (context) => TaskScreen(database: database),
+        '/login': (context) => LoginScreen(),
+        '/register': (context) => RegisterScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/tasks') {
+          final args = settings.arguments as Map<String, String>;  // Recibimos los argumentos como Map
+          final token = args['token']!;
+          final username = args['username']!;
+          final password = args['password']!;
+          return MaterialPageRoute(
+            builder: (context) => TaskScreen(token: token, username: username, password: password,), // Pasamos el token al TaskScreen
+          );
+        }
+        return null; // En caso de que no coincida ninguna ruta
       },
     );
   }
